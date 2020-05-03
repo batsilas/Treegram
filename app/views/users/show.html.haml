@@ -1,0 +1,53 @@
+.row.top_row
+  .col-sm-6.user_att
+    %h2= @user.email
+    =link_to "Show all users", users_path(current_user), class: ['btn', 'btn-danger', 'showallusers_btn']
+    - if @user.avatar_file_name
+      = image_tag @user.avatar.url(:thumb)
+  .col-sm-6
+    = link_to 'Logout', log_out_path, class: ['btn', 'btn-danger', 'logout_btn']
+  .row
+    = link_to 'Add Photo', new_user_photo_path(@user), class: ['btn', 'btn-success', 'add_photo_btn']
+%br/
+%br/
+%br/
+%br/
+%br/
+%br/
+%br/
+%br/
+%br/
+%br/
+.row
+  - @users.each  do |user|
+    -if current_user.following?(user) or user==current_user
+      - user.photos.order(created_at: :desc).each  do |photo|
+        .well.col-sm-6
+          %strong= user.email
+          = "posted: "
+          %br/
+          %strong= photo.title
+          %br/
+          = image_tag photo.image.url(:medium)
+          %br/
+          = form_for Comment.new() do |c|
+            = c.label :content , "comment here "
+            = c.text_field :content
+            = c.hidden_field :photo_id, value: photo.id
+            = c.submit "Publish"
+          = "Comments: "
+          %br/
+          - photo.comments.each do |com|
+            = com.user.email
+            = " :"
+            %strong= com.content
+            %br/
+          = form_for @tag do |f|
+            = f.hidden_field :photo_id, value: photo.id
+            = f.collection_select :user_id, @users, :id, :email
+            = f.submit "Tag User"
+          - photo.tags.each do |tag|
+            = tag.user.email
+          - if user==current_user
+            = button_to 'Delete', photo_path(photo),class: "btn btn-warning", :method => :delete, :confirm => 'Are you sure?'
+          

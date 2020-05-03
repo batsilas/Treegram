@@ -1,0 +1,14 @@
+.row.top_row
+  - @users.each  do |user|
+    - if user != current_user
+      .row
+        - unless current_user.following?(user)
+          = form_for current_user.active_follows.build do |f|
+            = hidden_field_tag :followed_id, user.id
+            = f.submit "Follow", class: "btn btn-primary"
+            %strong= user.email
+            %br/
+        - else
+          = "You are following: "
+          %strong= user.email
+          %br/
